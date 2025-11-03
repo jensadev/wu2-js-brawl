@@ -7,12 +7,12 @@ function rollDice() {
     return Math.ceil(Math.random() * 6)
 }
 
-console.log(rollDice())
-
-let playerRoll = rollDice()
-let enemyRoll = rollDice()
+const playerHpElement = document.querySelector("#player-hp")
+const enemyHpElement = document.querySelector("#enemy-hp")
 
 function gameRound() {
+    const playerRoll = rollDice()
+    const enemyRoll = rollDice()
     if (playerRoll > enemyRoll) {
         const damage = playerRoll - enemyRoll
         console.log(`Du köttar fienden för ${damage}!`)
@@ -24,6 +24,10 @@ function gameRound() {
     } else {
         console.log("Snyggt parerat, inget händer!")
     }
+    playerHpElement.textContent = playerHp
+    enemyHpElement.textContent = enemyHp
 }
-
-gameRound()
+playerHpElement.textContent = playerHp
+enemyHpElement.textContent = enemyHp
+const playButton = document.querySelector("#play-button")
+playButton.addEventListener("click", gameRound)
