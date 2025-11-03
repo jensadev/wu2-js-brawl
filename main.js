@@ -15,6 +15,9 @@ function log(msg) {
     const li = document.createElement("li")
     li.textContent = msg
     combatLogElement.appendChild(li)
+    if (combatLogElement.childNodes.length > 10) {
+        combatLogElement.removeChild(combatLogElement.firstChild)
+    }
 }
 
 function gameRound() {
