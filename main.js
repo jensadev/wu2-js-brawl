@@ -49,14 +49,20 @@ function gameRound() {
         enemy.hp -= damage
     } else if (enemyRoll > playerRoll) {
         const damage = enemyRoll - playerRoll
+        // lägg till variation i enemy attack messages
         log(`Nedrans, du blir mulad för ${damage}!`, "enemy")
         playerHp -= damage
     } else {
         log("Snyggt parerat, inget händer!")
     }
-    if (playerHp < 1 || enemy.hp < 1) {
+    if (playerHp < 1) {
         // flytta upp const playButton till där vi väljer andra element
         playButton.disabled = true
+        log(`Du har blivit besegrad, ${enemy.name} står som segrare!`, "status")
+    } else if (enemy.hp < 1) {
+        playButton.disabled = true
+        log(`Med dina brillianta färdigheter krossar du ${enemy.name}!`, "status")
+        // spawn new enemy?
     } else if (playerHp < 30) {
         playerHpElement.classList.add("low-hp")
     }

@@ -31,6 +31,9 @@ ul {
     .enemy {
         color: red;
     }
+    .status {
+        color: blue;
+    }
 }
 
 .low-hp {
