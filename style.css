@@ -3,11 +3,6 @@ body {
     font-size: 1.2rem;
 }
 
-ul {
-    list-style: none;
-    font-family: monospace;
-}
-
 .wrapper {
     max-width: 56rem;
     margin-inline: auto;
@@ -15,7 +10,31 @@ ul {
     padding-left: 1rem;
 }
 
+ul {
+    list-style: none;
+    font-family: monospace;
+}
+
 #combat-log {
     display: flex;
     flex-direction: column-reverse;
+
+    time {
+        color: gray;
+        font-weight: 400;
+    }
+
+    .player {
+        color: green;
+        font-weight: 700;
+    }
+    .enemy {
+        color: red;
+    }
 }
+
+.low-hp {
+    color: red;
+    font-weight: bold;
+}
+
