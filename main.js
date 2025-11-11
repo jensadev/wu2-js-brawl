@@ -3,7 +3,7 @@ const playerName = "Jens" // statiskt så vi slipper prompt varje körning
 let playerHp = 100
 
 function rollDice() {
-    return Math.ceil(Math.random() * 20)
+    return Math.ceil(Math.random() * 10)
 }
 
 const playButton = document.querySelector("#play-button")
@@ -18,9 +18,9 @@ function log(message, type) {
     }
     const time = document.createElement("time")
     const now = new Date()
+    const timeFormatter = new Intl.DateTimeFormat("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
     time.dateTime = now.toISOString()
-    time.textContent = now.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
-    time.textContent = `[${now.toLocaleTimeString("sv-SE", { hour: "2-digit", minute: "2-digit", second: "2-digit" })}]`
+    time.textContent = `[${timeFormatter.format(now)}]`
     li.textContent = ` ${message}`
     li.insertBefore(time, li.firstChild)
     combatLogElement.appendChild(li)
@@ -29,28 +29,49 @@ function log(message, type) {
     }
 }
 
-const enemy = {
-    "name": "Goblin",
-    "hp": 40
+class Actor {
+    constructor(name, hp, attackMessages) {
+        this.name = name
+        this.hp = hp
+        this.attackMessages = attackMessages
+    }
 }
+
+const enemy = new Actor(
+    "Goblin",
+    40,
+    [
+        "Goblinen svingar sin klubba och träffar dig i pallet för  {damage}!",
+        "Goblinen fräser och hugger dig för {damage}!",
+        "Goblinen kastar en sten i ditt plyte för {damage}!"
+    ]
+)
+
+const player = new Actor(
+    playerName,
+    playerHp,
+    [
+        "Du köttar {enemy} för {damage}!",
+        "Du gnuggar in {damage} skada!",
+        "Med bravur krossar du din meningsmotståndare för {damage} skada!"
+    ]
+)
 
 function gameRound() {
     const playerRoll = rollDice()
     const enemyRoll = rollDice()
     if (playerRoll > enemyRoll) {
         const damage = playerRoll - enemyRoll
-        const playerAttackMessages = [
-            `Du köttar ${enemy.name} för ${damage}!`,
-            `Med flinka fingrar gör du en pålkran på ${enemy.name} för ${damage}!`,
-            `Du gnuggar in ${damage} skada!`,
-            `Med bravur krossar du din meningsmotståndare för ${damage} skada!`
-        ]
-        log(playerAttackMessages[Math.floor(Math.random() * playerAttackMessages.length)], "player")
+        const playerMessageTemplate = player.attackMessages[Math.floor(Math.random() * player.attackMessages.length)]
+        const playerMessage = playerMessageTemplate.replace("{damage}", damage).replace("{enemy}", enemy.name)
+        log(playerMessage, "player")
         enemy.hp -= damage
     } else if (enemyRoll > playerRoll) {
         const damage = enemyRoll - playerRoll
         // lägg till variation i enemy attack messages
-        log(`Nedrans, du blir mulad för ${damage}!`, "enemy")
+        const enemyMessageTemplate = enemy.attackMessages[Math.floor(Math.random() * enemy.attackMessages.length)]
+        const enemyMessage = enemyMessageTemplate.replace("{damage}", damage)
+        log(enemyMessage, "enemy")
         playerHp -= damage
     } else {
         log("Snyggt parerat, inget händer!")
