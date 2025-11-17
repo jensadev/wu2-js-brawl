@@ -77,14 +77,12 @@ function gameRound() {
     enemyHpElement.textContent = enemy.hp < 1 ? 0 : enemy.hp
 }
 
-let start = 0
+let last = 0
 
 function gameLoop(timestamp) {
-    start = timestamp - start;
-    console.log(timestamp, start)
-    if (start / 1000 > 1) {
+    if (timestamp >= last + 1000) {
         gameRound()
-        start = 0
+        last = timestamp;
     }
     round = window.requestAnimationFrame(gameLoop)
 }
