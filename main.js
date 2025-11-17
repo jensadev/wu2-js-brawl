@@ -99,6 +99,7 @@ function gameLoop(timestamp) {
         playButton.textContent = "Starta om spelet"
         playButton.disabled = false
         stopButton.disabled = true
+        hiScore()
         window.cancelAnimationFrame(round)
     } else {
         round = window.requestAnimationFrame(gameLoop)
