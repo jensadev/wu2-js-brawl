@@ -7,6 +7,7 @@ function rollDice() {
 }
 
 const playButton = document.querySelector("#play-button")
+const stopButton = document.querySelector("#stop-button")
 const playerHpElement = document.querySelector("#player-hp")
 const enemyHpElement = document.querySelector("#enemy-hp")
 const combatLogElement = document.querySelector("#combat-log")
@@ -29,10 +30,15 @@ function log(message, type) {
     }
 }
 
-const enemy = {
-    "name": "Goblin",
-    "hp": 40
+class Enemy {
+    constructor(name, hp) {
+        this.name = name
+        this.hp = hp
+    }
 }
+
+const enemy = new Enemy("Goblin", 40)
+let round
 
 function gameRound() {
     const playerRoll = rollDice()
@@ -70,7 +76,26 @@ function gameRound() {
     playerHpElement.textContent = playerHp < 1 ? 0 : playerHp
     enemyHpElement.textContent = enemy.hp < 1 ? 0 : enemy.hp
 }
+
+let start = 0
+
+function gameLoop(timestamp) {
+    start = timestamp - start;
+    console.log(timestamp, start)
+    if (start / 1000 > 1) {
+        gameRound()
+        start = 0
+    }
+    round = window.requestAnimationFrame(gameLoop)
+}
+
+function stop() {
+    console.log("stop")
+    window.cancelAnimationFrame(round)
+}
+
 playerHpElement.textContent = playerHp
 enemyHpElement.textContent = enemy.hp
 log(`Framför dig står en fruktansvärd ${enemy.name}!`)
-playButton.addEventListener("click", gameRound)
+playButton.addEventListener("click", gameLoop)
+stopButton.addEventListener("click", stop)
