@@ -37,7 +37,7 @@ class Enemy {
     }
 }
 
-const enemy = new Enemy("Goblin", 40)
+let enemy = new Enemy("Goblin", 40)
 let round
 
 function gameRound() {
@@ -61,30 +61,44 @@ function gameRound() {
     } else {
         log("Snyggt parerat, inget händer!")
     }
+}
+
+let last = 0
+
+function gameLoop(timestamp) {
+    console.log(timestamp, last)
+    if (timestamp >= last + 1000) {
+        gameRound()
+        last = timestamp
+    }
+
     if (playerHp < 1) {
         // flytta upp const playButton till där vi väljer andra element
         playButton.disabled = true
         log(`Du har blivit besegrad, ${enemy.name} står som segrare!`, "status")
-    } else if (enemy.hp < 1) {
+        window.cancelAnimationFrame(round)
+    } else {
+        round = window.requestAnimationFrame(gameLoop)
+    }
+
+    if (enemy.hp < 1) {
         playButton.disabled = true
         log(`Med dina brillianta färdigheter krossar du ${enemy.name}!`, "status")
         // spawn new enemy?
+        // debugger
+        last += 5000
+        enemy = new Enemy("Skrotnisse", 50)
+        log(`Knappt har du återhämtat dig så dyker en fasansfull ${enemy.name} upp!`)
+        const heal = Math.floor(Math.random() * 20 + 10)
+        log(`Du djupandas och får tillbaka ${heal} hp!`)
+        playerHp += heal
+        playButton.disabled = false
     } else if (playerHp < 30) {
         playerHpElement.classList.add("low-hp")
     }
 
     playerHpElement.textContent = playerHp < 1 ? 0 : playerHp
     enemyHpElement.textContent = enemy.hp < 1 ? 0 : enemy.hp
-}
-
-let last = 0
-
-function gameLoop(timestamp) {
-    if (timestamp >= last + 1000) {
-        gameRound()
-        last = timestamp;
-    }
-    round = window.requestAnimationFrame(gameLoop)
 }
 
 function stop() {
