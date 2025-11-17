@@ -10,6 +10,7 @@ function rollDice() {
 const playButton = document.querySelector("#play-button")
 const stopButton = document.querySelector("#stop-button")
 const playerHpElement = document.querySelector("#player-hp")
+const playerMoneyElement = document.querySelector("#player-money")
 const enemyHpElement = document.querySelector("#enemy-hp")
 const combatLogElement = document.querySelector("#combat-log")
 
@@ -39,10 +40,10 @@ class Enemy {
     }
     attack(damage) {
         const messages = [
-                this.name + " klöser dig i nyllet för " + damage + "!",
-                this.name + " trycker ned dig i skorna för " + damage + "!",
-                "Med en fasansfull kraft köttar " + this.name + " dig för " + damage + "!"
-            ]
+            this.name + " klöser dig i nyllet för " + damage + "!",
+            this.name + " trycker ned dig i skorna för " + damage + "!",
+            "Med en fasansfull kraft köttar " + this.name + " dig för " + damage + "!"
+        ]
         return messages[Math.floor(Math.random() * messages.length)]
     }
 }
@@ -50,7 +51,7 @@ class Enemy {
 function spawnEnemy() {
     const enemyNames = ["Goblin", "Orc", "Troll", "Skrotnisse", "Varg"]
     const name = enemyNames[Math.floor(Math.random() * enemyNames.length)]
-    const hp = Math.floor(Math.random() * 50 + 30)
+    const hp = Math.floor(Math.random() * 30 + 20)
     const money = Math.floor(Math.random() * hp)
     return new Enemy(name, hp, money)
 }
@@ -82,50 +83,92 @@ function gameRound() {
 }
 
 let last = 0
+const ROUND_INTERVAL = 1000 // milliseconds between rounds
 
 function gameLoop(timestamp) {
-    console.log(timestamp, last)
-    if (timestamp >= last + 1000) {
+    const deltaTime = timestamp - last
+    if (deltaTime >= ROUND_INTERVAL) {
         gameRound()
         last = timestamp
     }
 
     if (playerHp < 1) {
-        // flytta upp const playButton till där vi väljer andra element
         playButton.disabled = true
         log(`Du har blivit besegrad, ${enemy.name} står som segrare!`, "status")
+        log(`Ingen kommer att minnas dina patetiska försöka till ära, ${playerName}.`, "status")
+        playButton.textContent = "Starta om spelet"
+        playButton.disabled = false
+        stopButton.disabled = true
         window.cancelAnimationFrame(round)
     } else {
         round = window.requestAnimationFrame(gameLoop)
     }
 
     if (enemy.hp < 1) {
-        log(`Med dina brillianta färdigheter krossar du ${enemy.name}!`, "status")
-        // spawn new enemy?
-        // debugger
-        last += 5000
-        playerMoney += enemy.money
-        log(`Du lootar den döde ${enemy.name} för ${enemy.money}, du har nu ${playerMoney}!`, "money")
-        enemy = spawnEnemy()
-        log(`Knappt har du återhämtat dig så dyker en fasansfull ${enemy.name} upp!`, "enemy")
-        const heal = Math.floor(Math.random() * 20 + 10)
-        log(`Du djupandas och får tillbaka ${heal} hp!`, "player")
-        playerHp += heal
+        enemyDefeated()
     } else if (playerHp < 30) {
         playerHpElement.classList.add("low-hp")
     }
 
     playerHpElement.textContent = playerHp < 1 ? 0 : playerHp
     enemyHpElement.textContent = enemy.hp < 1 ? 0 : enemy.hp
+    playerMoneyElement.textContent = playerMoney
+}
+
+function enemyDefeated() {
+    window.cancelAnimationFrame(round)
+    log(`Med dina brillianta färdigheter krossar du ${enemy.name}!`, "status")
+
+    playerMoney += enemy.money
+    log(`I resterna av ${enemy.name} glimrar ${enemy.money} mynt.`, "money")
+    log(`Du roffar snabbt åt dig dem. Du har nu ${playerMoney} mynt!`, "money")
+
+    const heal = Math.floor(Math.random() * 20 + 10)
+    log(`Du tar några djupa andetag och får tillbaka ${heal} hp!`, "player")
+    playerHp += heal
+
+    playButton.disabled = false
+    stopButton.disabled = true
+
+    enemy = spawnEnemy()
+    log(`En ny fiende närmar sig... En fruktansvärd ${enemy.name} dyker upp!`, "status")
+    playButton.textContent = "Fortsätt striden!"
 }
 
 function stop() {
     console.log("stop")
     window.cancelAnimationFrame(round)
 }
+function start() {
+    console.log("start")
+    if (playerHp < 1) {
+        playerHp = 100
+        playerMoney = 0
+        enemy = spawnEnemy()
+        log(`Spelet startas om. En ny fiende närmar sig... En fruktansvärd ${enemy.name} dyker upp!`, "status")
+        playButton.textContent = "Spela"
+        playerHpElement.classList.remove("low-hp")
+    }
+    playerHpElement.textContent = playerHp
+    enemyHpElement.textContent = enemy.hp
+    playerMoneyElement.textContent = playerMoney
+    playButton.disabled = true
+    stopButton.disabled = false
+    gameLoop()
+}
 
-playerHpElement.textContent = playerHp
-enemyHpElement.textContent = enemy.hp
 log(`Framför dig står en fruktansvärd ${enemy.name}!`)
-playButton.addEventListener("click", gameLoop)
+playButton.addEventListener("click", start)
 stopButton.addEventListener("click", stop)
+
+function hiScore() {
+    const hiScore = localStorage.getItem("hiScore") || 0
+    if (playerMoney > hiScore) {
+        localStorage.setItem("hiScore", playerMoney)
+        log(`Nytt rekord! Ditt nya högsta antal mynt är ${playerMoney}!`, "status")
+    } else {
+        log(`Ditt högsta antal mynt är fortfarande ${hiScore}.`, "status")
+    }
+}
+
+window.addEventListener("beforeunload", hiScore)
