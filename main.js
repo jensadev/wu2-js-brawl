@@ -1,6 +1,7 @@
 // const playerName = prompt("Skriv ditt namn: ")
 const playerName = "Jens" // statiskt så vi slipper prompt varje körning
 let playerHp = 100
+let playerMoney = 0
 
 function rollDice() {
     return Math.ceil(Math.random() * 20)
@@ -31,13 +32,22 @@ function log(message, type) {
 }
 
 class Enemy {
-    constructor(name, hp) {
+    constructor(name, hp, money) {
         this.name = name
         this.hp = hp
+        this.money = money
     }
 }
 
-let enemy = new Enemy("Goblin", 40)
+function spawnEnemy() {
+    const enemyNames = ["Goblin", "Orc", "Troll", "Skrotnisse", "Varg"]
+    const name = enemyNames[Math.floor(Math.random() * enemyNames.length)]
+    const hp = Math.floor(Math.random() * 50 + 30)
+    const money = Math.floor(Math.random() * hp)
+    return new Enemy(name, hp, money)
+}
+
+let enemy = spawnEnemy()
 let round
 
 function gameRound() {
@@ -82,17 +92,17 @@ function gameLoop(timestamp) {
     }
 
     if (enemy.hp < 1) {
-        playButton.disabled = true
         log(`Med dina brillianta färdigheter krossar du ${enemy.name}!`, "status")
         // spawn new enemy?
         // debugger
         last += 5000
-        enemy = new Enemy("Skrotnisse", 50)
-        log(`Knappt har du återhämtat dig så dyker en fasansfull ${enemy.name} upp!`)
+        playerMoney += enemy.money
+        log(`Du lootar den döde ${enemy.name} för ${enemy.money}, du har nu ${playerMoney}!`, "money")
+        enemy = spawnEnemy()
+        log(`Knappt har du återhämtat dig så dyker en fasansfull ${enemy.name} upp!`, "enemy")
         const heal = Math.floor(Math.random() * 20 + 10)
-        log(`Du djupandas och får tillbaka ${heal} hp!`)
+        log(`Du djupandas och får tillbaka ${heal} hp!`, "player")
         playerHp += heal
-        playButton.disabled = false
     } else if (playerHp < 30) {
         playerHpElement.classList.add("low-hp")
     }
