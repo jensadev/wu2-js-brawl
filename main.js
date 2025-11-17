@@ -37,6 +37,14 @@ class Enemy {
         this.hp = hp
         this.money = money
     }
+    attack(damage) {
+        const messages = [
+                this.name + " klöser dig i nyllet för " + damage + "!",
+                this.name + " trycker ned dig i skorna för " + damage + "!",
+                "Med en fasansfull kraft köttar " + this.name + " dig för " + damage + "!"
+            ]
+        return messages[Math.floor(Math.random() * messages.length)]
+    }
 }
 
 function spawnEnemy() {
@@ -66,7 +74,7 @@ function gameRound() {
     } else if (enemyRoll > playerRoll) {
         const damage = enemyRoll - playerRoll
         // lägg till variation i enemy attack messages
-        log(`Nedrans, du blir mulad för ${damage}!`, "enemy")
+        log(enemy.attack(damage), "enemy")
         playerHp -= damage
     } else {
         log("Snyggt parerat, inget händer!")
